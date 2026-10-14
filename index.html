@@ -1,3 +1,94 @@
-<h1>This is my first website</h1>
-<p>Hello World</p>
-<p>A test sentence</p>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>D3 Bar Chart</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .bar {
+        fill: steelblue;
+      }
+      .bar:hover {
+        fill: orange;
+      }
+      .label {
+        font-size: 12px;
+        fill: black;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>D3.js Bar Chart</h2>
+    <svg id="chart"></svg>
+
+    <script>
+      const data = [
+        { name: "A", value: 1 },
+        { name: "B", value: 5 },
+        { name: "C", value: 8 },
+        { name: "D", value: 10 },
+      ];
+
+      const width = 600;
+      const height = 400;
+      const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+
+      const svg = d3
+        .select("#chart")
+        .attr("width", width)
+        .attr("height", height);
+
+      // X scale
+      const x = d3
+        .scaleBand()
+        .domain(data.map((d) => d.name))
+        .range([margin.left, width - margin.right])
+        .padding(0.2);
+
+      // Y scale
+      const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(data, (d) => d.value)])
+        .nice()
+        .range([height - margin.bottom, margin.top]);
+
+      // Bars
+      svg
+        .selectAll(".bar")
+        .data(data)
+        .join("rect")
+        .attr("class", "bar")
+        .attr("x", (d) => x(d.name))
+        .attr("y", (d) => y(d.value))
+        .attr("width", x.bandwidth())
+        .attr("height", (d) => y(0) - y(d.value));
+
+      // X axis
+      svg
+        .append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x));
+
+      // Y axis
+      svg
+        .append("g")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y));
+
+      // Value labels
+      svg
+        .selectAll(".label")
+        .data(data)
+        .join("text")
+        .attr("class", "label")
+        .attr("x", (d) => x(d.name) + x.bandwidth() / 2)
+        .attr("y", (d) => y(d.value) - 5)
+        .attr("text-anchor", "middle")
+        .text((d) => d.value);
+    </script>
+  </body>
+</html>
